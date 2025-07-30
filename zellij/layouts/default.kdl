@@ -1,0 +1,28 @@
+layout {
+    pane size=1 split_direction="vertical" {
+        pane size="75%" borderless=true {
+            plugin location="zellij:tab-bar"
+        }
+        pane size="25%"  borderless=true {
+            plugin location="file:/home/$USER/.config/zellij/plugins/zellij-datetime.wasm" {
+            timezone1 "UTC/+7"
+            default-timezone "UTC"
+            date_format "%A %d-%m-%Y"
+            time_format "%I:%M %p"
+            background_color "#6e5282"
+            foreground_color "#ffffff"
+            pane_color "#1e1e1e"
+            enable_right_click false
+            arrow_separator1 ""
+            arrow_separator2 ""
+            arrow_separator3 ""
+            padding_adjust 0
+            text_align "right"
+        }
+    }
+    }
+    pane
+    pane size=1 borderless=true {
+        plugin location="zellij:status-bar"
+    }
+}
