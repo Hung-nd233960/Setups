@@ -82,6 +82,19 @@ class Code:
         cmd = self.cmd + (["--profile", profile] if profile else []) + list(args)
         return subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8")
 
+    def uninstall(self, profile, ids):
+        """Uninstall one at a time (the CLI stops a batch at the first refusal) and
+        repeat, so an extension goes once its dependents are gone. Returns leftovers."""
+        left = list(ids)
+        while left:
+            for e in left:
+                self.run(profile, "--uninstall-extension", e)
+            still = [e for e in left if e in self.installed(profile)]
+            if len(still) == len(left):
+                break
+            left = still
+        return left
+
     def installed(self, profile):
         lines = self.run(profile, "--list-extensions").stdout.splitlines()
         return {
@@ -178,10 +191,13 @@ def sync_extensions(code, profile, wanted, prune, check):
                 ok = False
     if extra:
         if prune and not check:
-            code.run(
-                profile, *[arg for e in extra for arg in ("--uninstall-extension", e)]
-            )
-            print(f"removed  {label}: {', '.join(extra)}")
+            left = code.uninstall(profile, extra)
+            removed = [e for e in extra if e not in left]
+            if removed:
+                print(f"removed  {label}: {', '.join(removed)}")
+            if left:
+                print(f"FAILED   {label}: could not uninstall {', '.join(left)}")
+                ok = False
         else:
             print(f"EXTRA    {label}: {', '.join(extra)} (remove with --prune)")
             ok = False
