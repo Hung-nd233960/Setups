@@ -36,6 +36,11 @@ link "$repo/linux/kitty" "$config/kitty"
 link "$repo/linux/btop" "$config/btop"
 link "$repo/linux/zellij" "$config/zellij"
 
+# Git: global ignore and line endings
+link "$repo/common/git/ignore" "$config/git/ignore"
+git config --global core.autocrlf input
+echo "set      git core.autocrlf=input"
+
 # Lint/format defaults in the home folder (tools search parent folders)
 for name in .editorconfig ruff.toml biome.json .prettierrc.json .yamllint.yaml .taplo.toml .markdownlint-cli2.jsonc; do
   link "$repo/common/lint/$name" "$HOME/$name"

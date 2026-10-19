@@ -40,4 +40,16 @@ foreach ($name in '.editorconfig', 'ruff.toml', 'biome.json', '.prettierrc.json'
     "copied   $dst"
 }
 
+# Git: global ignore (copied) and line endings (LF in repos, matching .editorconfig)
+$gitIgnore = "$HOME\.config\git\ignore"
+if ((Test-Path $gitIgnore) -and ([IO.File]::ReadAllText("$repo\common\git\ignore") -eq [IO.File]::ReadAllText($gitIgnore))) { "ok       $gitIgnore" }
+else {
+    if (Test-Path $gitIgnore) { Copy-Item $gitIgnore "$gitIgnore.bak-$stamp" }
+    New-Item -ItemType Directory -Force (Split-Path $gitIgnore) | Out-Null
+    Copy-Item "$repo\common\git\ignore" $gitIgnore -Force
+    "copied   $gitIgnore"
+}
+git config --global core.autocrlf input
+"set      git core.autocrlf=input"
+
 "Windows Terminal settings are not linked (Terminal rewrites the file). Copy windows\terminal\settings.json by hand if needed."
