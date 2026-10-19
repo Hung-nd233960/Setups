@@ -1,0 +1,47 @@
+{
+  "base": [
+    "anthropic.claude-code",
+    "catppuccin.catppuccin-vsc",
+    "catppuccin.catppuccin-vsc-icons",
+    "editorconfig.editorconfig",
+    "tekumara.typos-vscode",
+    "charliermarsh.ruff",
+    "biomejs.biome",
+    "esbenp.prettier-vscode",
+    "redhat.vscode-yaml",
+    "tamasfe.even-better-toml",
+    "davidanson.vscode-markdownlint",
+    "yzhang.markdown-all-in-one",
+    "tomoki1207.pdf",
+    "github.vscode-pull-request-github",
+    "github.vscode-github-actions",
+    "ms-vscode-remote.remote-ssh",
+    "ms-vscode-remote.remote-ssh-edit",
+    "ms-vscode.remote-explorer"
+  ],
+  "profiles": {
+    "Data Science": {
+      "icon": "graph",
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-python.debugpy",
+        "ms-python.vscode-python-envs",
+        "ms-toolsai.jupyter",
+        "ms-toolsai.jupyter-renderers",
+        "ms-toolsai.datawrangler",
+        "quarto.quarto",
+        "mechatroner.rainbow-csv",
+        "qwtel.sqlite-viewer"
+      ]
+    },
+    "Web": {
+      "icon": "globe",
+      "extensions": ["ms-vscode.live-server"]
+    },
+    "Docs": {
+      "icon": "book",
+      "extensions": ["james-yu.latex-workshop", "myriad-dreamin.tinymist", "quarto.quarto"]
+    }
+  }
+}

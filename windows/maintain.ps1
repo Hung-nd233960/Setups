@@ -56,6 +56,9 @@ $lintFiles = '.editorconfig', 'ruff.toml', 'biome.json', '.prettierrc.json', '.y
 $stale = $lintFiles | Where-Object { -not (Test-Path "$HOME\$_") -or [IO.File]::ReadAllText("$repo\common\lint\$_") -ne [IO.File]::ReadAllText("$HOME\$_") }
 if ($stale) { Warn "home lint configs out of sync with Setups: $($stale -join ', ') (run link.ps1)" } else { Ok 'home lint configs match Setups' }
 
+$vscode = uv run --no-project python "$repo\common\vscode\setup.py" --check 2>&1
+if ($LASTEXITCODE) { Warn 'VS Code differs from Setups (common\vscode\setup.py --diff / --prune)'; $vscode | Where-Object { $_ -notmatch '^ok' } | ForEach-Object { "          $_" } } else { Ok 'VS Code settings and extensions match Setups' }
+
 $settings = "$HOME\.claude\settings.json"
 if ((Test-Path $settings) -and (Get-Content $settings -Raw) -match 'format_hook\.py') { Ok 'Claude format hook registered' } else { Warn 'Claude format hook not found in settings.json' }
 

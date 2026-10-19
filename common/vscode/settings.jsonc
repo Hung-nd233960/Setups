@@ -1,0 +1,112 @@
+{
+  // Shared by every profile (see profiles.json). Copied into place by setup.py, not linked:
+  // machine-specific values (SSH hosts, DB connections) stay in the local copy.
+
+  // Look
+  "workbench.colorTheme": "Catppuccin Mocha",
+  "workbench.iconTheme": "catppuccin-mocha",
+  "workbench.experimental.modernUI": true,
+  "workbench.secondarySideBar.defaultVisibility": "hidden",
+  "editor.fontFamily": "FiraCode Nerd Font, SF Pro Text, monospace",
+  "editor.fontSize": 14,
+  "editor.fontLigatures": true,
+  "editor.rulers": [100],
+  "editor.unicodeHighlight.nonBasicASCII": false,
+
+  // Editing: formatters and line endings match the Claude Code format hook (common/lint)
+  "editor.formatOnSave": true,
+  "editor.linkedEditing": true,
+  "files.eol": "\n",
+  "files.insertFinalNewline": true,
+  "files.trimFinalNewlines": true,
+  "files.trimTrailingWhitespace": true,
+  "explorer.confirmDelete": false,
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.rulers": [88],
+    "editor.codeActionsOnSave": {
+      "source.fixAll.ruff": "explicit",
+      "source.organizeImports.ruff": "explicit"
+    }
+  },
+  "[json]": { "editor.defaultFormatter": "biomejs.biome" },
+  "[jsonc]": { "editor.defaultFormatter": "biomejs.biome" },
+  "[javascript]": { "editor.defaultFormatter": "biomejs.biome" },
+  "[typescript]": { "editor.defaultFormatter": "biomejs.biome" },
+  "[css]": { "editor.defaultFormatter": "biomejs.biome" },
+  "[html]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[yaml]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[toml]": { "editor.defaultFormatter": "tamasfe.even-better-toml" },
+  // Markdown, Quarto, LaTeX and Typst are linted or formatted on request, never on save
+  "[markdown]": {
+    "editor.formatOnSave": false,
+    "editor.wordWrap": "on",
+    "files.trimTrailingWhitespace": false
+  },
+  "[quarto]": {
+    "editor.formatOnSave": false,
+    "editor.wordWrap": "on",
+    "files.trimTrailingWhitespace": false
+  },
+  "[latex]": { "editor.formatOnSave": false, "editor.wordWrap": "on" },
+  "[bibtex]": { "editor.formatOnSave": false },
+  "[typst]": {
+    "editor.defaultFormatter": "myriad-dreamin.tinymist",
+    "editor.formatOnSave": false,
+    "editor.wordWrap": "on"
+  },
+  "redhat.telemetry.enabled": false,
+
+  // Python and notebooks
+  "python.analysis.typeCheckingMode": "standard",
+  "notebook.lineNumbers": "on",
+  "notebook.formatOnSave.enabled": true,
+  "notebook.codeActionsOnSave": {
+    "notebook.source.fixAll": "explicit",
+    "notebook.source.organizeImports": "explicit"
+  },
+
+  // LaTeX (TinyTeX latexmk, the extension's default recipe) and Typst
+  "latex-workshop.view.pdf.viewer": "tab",
+  "tinymist.formatterMode": "typstyle",
+
+  // Git
+  "git.autofetch": true,
+  "git.confirmSync": false,
+  "git.openRepositoryInParentFolders": "never",
+  "git.suggestSmartCommit": false,
+
+  // Terminal
+  "terminal.integrated.fontFamily": "FiraCode Nerd Font, SF Pro Text, monospace",
+  "terminal.integrated.fontSize": 13,
+  "terminal.integrated.lineHeight": 1.2,
+  "terminal.integrated.smoothScrolling": true,
+  "terminal.integrated.defaultProfile.windows": "PowerShell",
+  "terminal.integrated.defaultProfile.linux": "fish",
+  "terminal.integrated.profiles.linux": {
+    "bash": { "path": "bash", "icon": "terminal-bash" },
+    "fish": { "path": "/usr/bin/fish", "args": ["-l", "-i"] },
+    "pwsh": { "path": "pwsh", "icon": "terminal-powershell" }
+  },
+
+  // AI: Claude Code for chat and agents, Copilot for inline completions only
+  "claudeCode.preferredLocation": "panel",
+  "claudeCode.hideOnboarding": true,
+  "chat.commandCenter.enabled": false,
+  "github.copilot.nextEditSuggestions.enabled": false,
+  "github.copilot.enable": {
+    "*": true,
+    "plaintext": false,
+    "markdown": false,
+    "scminput": false
+  },
+
+  // Remote SSH: what to install on a workstation when connecting the first time
+  "remote.SSH.defaultExtensions": [
+    "anthropic.claude-code",
+    "charliermarsh.ruff",
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "ms-toolsai.jupyter"
+  ]
+}

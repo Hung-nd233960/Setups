@@ -2,6 +2,7 @@
 #   nvim  -> %LOCALAPPDATA%\nvim              (junction)
 #   yazi  -> %APPDATA%\yazi\config             (junction)
 #   shell -> both PowerShell profiles          (one-line stubs that load windows\powershell\profile.ps1)
+#   VS Code settings, profiles and extensions  (common\vscode\setup.py; close VS Code first)
 # Existing non-link targets are renamed to <name>.bak-<timestamp>, never deleted.
 $repo = Split-Path -Parent $PSScriptRoot
 $stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
@@ -55,5 +56,8 @@ else {
 }
 git config --global core.autocrlf input
 "set      git core.autocrlf=input"
+
+# VS Code: settings are copied (VS Code writes machine-specific values into them), plus profiles and extensions
+uv run --no-project python "$repo\common\vscode\setup.py"
 
 "Windows Terminal settings are not linked (Terminal rewrites the file). Copy windows\terminal\settings.json by hand if needed."

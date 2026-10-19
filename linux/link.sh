@@ -41,6 +41,11 @@ link "$repo/common/git/ignore" "$config/git/ignore"
 git config --global core.autocrlf input
 echo "set      git core.autocrlf=input"
 
+# VS Code: settings are copied, not linked (VS Code writes machine-specific values into them)
+if command -v code >/dev/null; then
+  python3 "$repo/common/vscode/setup.py" || echo "VS Code setup reported problems (see above)"
+fi
+
 # Lint/format defaults in the home folder (tools search parent folders)
 for name in .editorconfig ruff.toml biome.json .prettierrc.json .yamllint.yaml .taplo.toml .markdownlint-cli2.jsonc typos.toml; do
   link "$repo/common/lint/$name" "$HOME/$name"

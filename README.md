@@ -6,7 +6,7 @@ Setup for my machines aka this is where I put dotfiles. May include descriptions
 
 | Folder | Contents |
 |---|---|
-| `common/` | Configs that work the same on every OS: `nvim` (AstroNvim v5), `yazi`, `helix`, `starship`, `lint` |
+| `common/` | Configs that work the same on every OS: `nvim` (AstroNvim v5), `yazi`, `helix`, `starship`, `lint`, `vscode` |
 | `linux/` | Linux only: `fish`, `kitty`, `btop`, `zellij` |
 | `windows/` | Windows only: PowerShell profile, Windows Terminal settings, `link.ps1` |
 
@@ -33,6 +33,21 @@ git clone https://github.com/Hung-nd233960/Setups.git ~/Setups
 ```
 
 `link.sh` symlinks `common/` (nvim, yazi, helix, starship) and `linux/` (fish, kitty, btop, zellij) into `~/.config/`, and the lint configs into `~`. Existing files are renamed to `*.bak-<timestamp>`, never deleted. The Claude Code format hook (`common/lint/format_hook.py`) is registered in `~/.claude/settings.json` per machine; on Linux point its path at `~/Setups/common/lint/format_hook.py`.
+
+## VS Code
+
+`common/vscode/setup.py` (run by both link scripts) sets up one shared `settings.jsonc` and four profiles. Each profile gets the base extensions (theme, Claude Code, Remote SSH, git, and the same formatters as the Claude format hook: Ruff, Biome, Prettier, taplo, markdownlint, typos) plus its own:
+
+| Profile | Extra extensions | For |
+|---|---|---|
+| Default | none | Dotfiles: JSON, TOML, YAML, Markdown |
+| Data Science | Python, Pylance, Jupyter, Data Wrangler, Quarto, Rainbow CSV, SQLite viewer | Notebooks and analysis |
+| Web | Live Preview | HTML/CSS/JS |
+| Docs | LaTeX Workshop (latexmk), Tinymist (Typst), Quarto | Reports and papers |
+
+All profiles share the Default profile's settings, keybindings and snippets, so there is one settings file. Extensions are listed in `profiles.json`. Open a folder in a profile with `code --profile "Data Science" <folder>`; VS Code remembers the choice for that folder.
+
+Settings are **copied**, not linked: VS Code writes machine-specific values (SSH hosts, database connections) into `settings.json`, and this repo is public. To keep a change made in the UI, run `setup.py --diff` and copy the part you want into `settings.jsonc`. `setup.py --check` reports drift, `--prune` uninstalls extensions that are not listed, and `--sandbox <dir>` tries everything in a throwaway VS Code folder. Creating profiles needs VS Code closed. Settings Sync stays off; this repo replaces it.
 
 ## Notes
 
