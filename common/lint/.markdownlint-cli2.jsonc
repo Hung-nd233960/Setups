@@ -1,0 +1,15 @@
+// Markdown lint rules safe for Pandoc / Quarto. Lint only: Markdown is never auto-formatted.
+{
+  "config": {
+    "default": true,
+    "MD003": { "style": "atx" }, // # headings
+    "MD004": { "style": "dash" }, // - list markers
+    "MD007": { "indent": 2 },
+    "MD013": false, // no line-length limit (prose, tables, URLs)
+    "MD024": { "siblings_only": true }, // repeated headings OK under different parents
+    "MD033": false, // inline HTML is used by Pandoc/Quarto
+    "MD041": false, // a front-matter title counts as the document title
+    "MD046": { "style": "fenced" },
+    "MD060": false // table pipe spacing: |---| is valid pipe-table syntax
+  }
+}

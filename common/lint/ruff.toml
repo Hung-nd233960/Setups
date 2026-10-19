@@ -1,0 +1,20 @@
+# Default Ruff config: formatter (replaces Black) and linter.
+line-length = 88
+target-version = "py313"
+
+[lint]
+select = [
+  "E", "W",  # pycodestyle
+  "F",       # pyflakes: unused/undefined names
+  "I",       # import sorting
+  "UP",      # modern syntax for the target version
+  "B",       # bugbear: likely bugs
+  "SIM",     # simplifications
+  "C4",      # comprehensions
+  "PIE",     # misc pitfalls
+  "RUF",     # ruff-specific
+]
+ignore = ["E501"]  # long lines are left to the formatter
+
+[format]
+quote-style = "double"

@@ -1,11 +1,12 @@
 # Setups
+
 Setup for my machines aka this is where I put dotfiles. May include descriptions if I have free time
 
 ## Layout
 
 | Folder | Contents |
 |---|---|
-| `common/` | Configs that work the same on every OS: `nvim` (AstroNvim v5), `yazi`, `helix` |
+| `common/` | Configs that work the same on every OS: `nvim` (AstroNvim v5), `yazi`, `helix`, `starship`, `lint` |
 | `linux/` | Linux only: `fish`, `kitty`, `btop`, `zellij` |
 | `windows/` | Windows only: PowerShell profile, Windows Terminal settings, `link.ps1` |
 
@@ -25,5 +26,6 @@ git clone https://github.com/Hung-nd233960/Setups.git $HOME\Setups
 Link or copy each folder under `linux/` and `common/` into `~/.config/`, for example `ln -s ~/Setups/common/nvim ~/.config/nvim`.
 
 ## Notes
+
 - `.gitattributes` forces LF line endings so Windows checkouts don't break shell/Lua files.
 - `common/nvim/lazy-lock.json` is shared. Update plugins on one machine, then commit, so the others follow.

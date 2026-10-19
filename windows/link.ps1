@@ -30,4 +30,14 @@ foreach ($p in "$HOME\Documents\PowerShell\Microsoft.PowerShell_profile.ps1",
     Set-Content $p $stub -Encoding utf8
     "profile  $p"
 }
+# Lint/format defaults: copied (file symlinks need admin on Windows). Re-run after editing common\lint.
+foreach ($name in '.editorconfig', 'ruff.toml', 'biome.json', '.prettierrc.json', '.yamllint.yaml',
+                  '.taplo.toml', '.markdownlint-cli2.jsonc') {
+    $src = "$repo\common\lint\$name"; $dst = "$HOME\$name"
+    if ((Test-Path $dst) -and ([IO.File]::ReadAllText($src) -eq [IO.File]::ReadAllText($dst))) { "ok       $dst"; continue }
+    if (Test-Path $dst) { Copy-Item $dst "$dst.bak-$stamp" }
+    Copy-Item $src $dst -Force
+    "copied   $dst"
+}
+
 "Windows Terminal settings are not linked (Terminal rewrites the file). Copy windows\terminal\settings.json by hand if needed."

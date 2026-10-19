@@ -1,0 +1,11 @@
+// Looser rules for Quarto (.qmd): chunk options, divs and cross-references trip generic rules.
+{
+  "config": {
+    "extends": "./.markdownlint-cli2.jsonc",
+    "MD001": false,  // Quarto docs may start at any heading level
+    "MD034": false,  // bare URLs in chunk output and YAML
+    "MD040": false,  // {python} chunk headers and raw blocks
+    "MD051": false,  // @fig-/#sec- cross-references
+    "MD052": false   // [@citation] keys are not link references
+  }
+}
