@@ -31,13 +31,17 @@ foreach ($p in "$HOME\Documents\PowerShell\Microsoft.PowerShell_profile.ps1",
     "profile  $p"
 }
 # Lint/format defaults: copied (file symlinks need admin on Windows). Re-run after editing common\lint.
-foreach ($name in '.editorconfig', 'ruff.toml', 'biome.json', '.prettierrc.json', '.yamllint.yaml',
-                  '.taplo.toml', '.markdownlint-cli2.jsonc', 'typos.toml') {
-    $src = "$repo\common\lint\$name"; $dst = "$HOME\$name"
-    if ((Test-Path $dst) -and ([IO.File]::ReadAllText($src) -eq [IO.File]::ReadAllText($dst))) { "ok       $dst"; continue }
-    if (Test-Path $dst) { Copy-Item $dst "$dst.bak-$stamp" }
-    Copy-Item $src $dst -Force
-    "copied   $dst"
+# Also into the projects folder on D:, which is outside $HOME and would not inherit them.
+$lintTargets = @($HOME) + @('D:\Personal Projects' | Where-Object { Test-Path $_ })
+foreach ($target in $lintTargets) {
+    foreach ($name in '.editorconfig', 'ruff.toml', 'biome.json', '.prettierrc.json', '.yamllint.yaml',
+                      '.taplo.toml', '.markdownlint-cli2.jsonc', 'typos.toml') {
+        $src = "$repo\common\lint\$name"; $dst = "$target\$name"
+        if ((Test-Path $dst) -and ([IO.File]::ReadAllText($src) -eq [IO.File]::ReadAllText($dst))) { "ok       $dst"; continue }
+        if (Test-Path $dst) { Copy-Item $dst "$dst.bak-$stamp" }
+        Copy-Item $src $dst -Force
+        "copied   $dst"
+    }
 }
 
 # Git: global ignore (copied) and line endings (LF in repos, matching .editorconfig)

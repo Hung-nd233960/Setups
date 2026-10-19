@@ -1,0 +1,40 @@
+---
+title: "{{title}}"
+author: "{{author}}"
+date: "{{date}}"
+format:
+  html:
+    embed-resources: true
+  docx: default
+bibliography: "{{bibliography}}"
+csl: "{{csl}}"
+execute:
+  echo: false
+---
+
+## Introduction
+
+{{description}}
+
+<!-- Cite with [@key]; keys come from the Zotero library (see ~/Documents/References/README.md). -->
+
+## Methods
+
+## Results
+
+```{python}
+#| label: fig-example
+#| fig-cap: "Placeholder figure; replace with real data from data/processed/."
+import matplotlib.pyplot as plt
+import numpy as np
+
+x = np.linspace(0, 10, 200)
+plt.plot(x, np.sin(x))
+plt.xlabel("x")
+plt.ylabel("sin(x)")
+plt.show()
+```
+
+## Discussion
+
+## References

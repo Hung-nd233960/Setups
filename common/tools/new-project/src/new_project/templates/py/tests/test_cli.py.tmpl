@@ -1,0 +1,6 @@
+from {{module}}.cli import main
+
+
+def test_main_prints_greeting(capsys):
+    assert main([]) == 0
+    assert "{{name}}" in capsys.readouterr().out

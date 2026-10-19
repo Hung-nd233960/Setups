@@ -1,0 +1,11 @@
+# {{title}}
+
+Data analysis project, uv-managed (Python 3.13). Pipeline: `data/raw/` -> `scripts/` -> `data/processed/` -> `reports/report.qmd`.
+
+- Never modify, rename or delete anything in `data/raw/`. Scripts read raw data and write to `data/processed/` or `figures/`.
+- **Privacy:** this may be health data. Do not print identifiable patient data into chat, logs, notebooks outputs or the report; work with aggregates. Never commit data files (they are git-ignored on purpose).
+- Run scripts with `uv run python scripts/<name>.py`. Add packages with `uv add <pkg>`; never `pip install`.
+- Reusable logic belongs in `scripts/`, not only in notebooks. Keep scripts re-runnable from scratch.
+- Render the report: `uv run quarto render reports/report.qmd` (uv puts the project venv first so Quarto runs code with it).
+- Citations: cite only keys that exist in the bibliography file named in the report's front matter; never invent references.
+- Formatting, lint, spelling and type checks run automatically after each edit; fix what they report.

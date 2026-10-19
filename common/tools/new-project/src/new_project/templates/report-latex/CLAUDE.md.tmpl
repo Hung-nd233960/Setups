@@ -1,0 +1,8 @@
+# {{title}}
+
+LaTeX document (biblatex + biber): `main.tex` -> `main.pdf`.
+
+- Build: `latexmk -pdf main.tex`. Auxiliary files and the PDF are git-ignored.
+- Citations: `\cite{key}` with keys from the file in `\addbibresource`; never invent references.
+- Figures in `figures/` (already on `\graphicspath`).
+- Spelling is checked after each edit (typos); fix what it reports.

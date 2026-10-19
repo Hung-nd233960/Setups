@@ -1,0 +1,24 @@
+# {{title}}
+
+{{description}}
+
+## Layout
+
+| Folder | Purpose |
+|---|---|
+| `data/raw/` | Original data, never modified (git-ignored) |
+| `data/processed/` | Outputs of `scripts/` (git-ignored, regenerable) |
+| `scripts/` | Reproducible pipeline steps |
+| `notebooks/` | Exploration |
+| `reports/` | Quarto report (HTML and Word) |
+| `figures/` | Figures saved by scripts |
+
+## Usage
+
+```powershell
+uv sync
+uv run python scripts/prepare_data.py
+uv run quarto render reports/report.qmd
+```
+
+For notebooks in VS Code, pick the interpreter in `.venv`.

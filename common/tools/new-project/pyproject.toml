@@ -1,0 +1,13 @@
+[project]
+name = "new-project"
+version = "0.1.0"
+description = "Scaffold new projects with this machine's conventions (uv, lint, git, CLAUDE.md)."
+requires-python = ">=3.13"
+dependencies = []
+
+[project.scripts]
+new-project = "new_project.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.11,<0.12"]
+build-backend = "uv_build"

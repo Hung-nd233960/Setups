@@ -1,0 +1,22 @@
+"""Read raw data, clean it, write processed data. Re-runnable from scratch."""
+
+from pathlib import Path
+
+import pandas as pd
+
+ROOT = Path(__file__).resolve().parents[1]
+RAW = ROOT / "data" / "raw"
+PROCESSED = ROOT / "data" / "processed"
+
+
+def main() -> None:
+    PROCESSED.mkdir(parents=True, exist_ok=True)
+    for csv in sorted(RAW.glob("*.csv")):
+        df = pd.read_csv(csv)
+        # cleaning steps go here
+        df.to_csv(PROCESSED / csv.name, index=False)
+        print(f"{csv.name}: {len(df)} rows")
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,19 @@
+"""Command-line entry point for {{name}}."""
+
+import argparse
+
+from {{module}} import __version__
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(prog="{{name}}", description="{{description}}")
+    parser.add_argument(
+        "--version", action="version", version=f"%(prog)s {__version__}"
+    )
+    parser.parse_args(argv)
+    print("Hello from {{name}}!")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

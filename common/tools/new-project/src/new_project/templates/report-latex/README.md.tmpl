@@ -1,0 +1,12 @@
+# {{title}}
+
+{{description}}
+
+## Build
+
+```powershell
+latexmk -pdf main.tex     # runs pdflatex and biber as needed
+latexmk -c                # clean auxiliary files
+```
+
+Works with the LaTeX Workshop extension in VS Code. Citations use biblatex with the bibliography in `\addbibresource`.

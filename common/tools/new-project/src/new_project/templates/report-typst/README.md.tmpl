@@ -1,0 +1,12 @@
+# {{title}}
+
+{{description}}
+
+## Build
+
+```powershell
+typst compile main.typ        # writes main.pdf
+typst watch main.typ          # rebuild on save
+```
+
+Typst cannot read files outside this folder, so citations come from the local `references.bib`. In Zotero, right-click this project's collection, **Export Collection...**, format **Better BibLaTeX**, tick **Keep updated**, and save it as this folder's `references.bib`.

@@ -1,0 +1,21 @@
+#set document(title: "{{title}}", author: "{{author}}")
+#set page(paper: "a4", numbering: "1")
+#set text(size: 11pt)
+#set heading(numbering: "1.")
+
+#align(center, text(17pt, weight: "bold")[{{title}}])
+#align(center)[{{author}} · {{date}}]
+
+= Introduction
+
+{{description}}
+
+// Cite with @key (keys from references.bib); figures go in figures/.
+
+= Methods
+
+= Results
+
+= Discussion
+
+#bibliography("references.bib", style: "nlm-citation-sequence")  // NLM/Vancouver, built into Typst

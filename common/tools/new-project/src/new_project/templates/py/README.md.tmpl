@@ -1,0 +1,25 @@
+# {{title}}
+
+{{description}}
+
+## Setup
+
+```powershell
+uv sync
+```
+
+## Usage
+
+```powershell
+uv run {{name}} --help
+```
+
+## Development
+
+```powershell
+uv run pytest
+uv add <package>          # runtime dependency
+uv add --dev <package>    # development-only dependency
+```
+
+Install as a command on this machine: `uv tool install --editable .`
