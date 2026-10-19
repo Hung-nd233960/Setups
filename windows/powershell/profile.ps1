@@ -2,7 +2,11 @@
 if ([Environment]::UserInteractive -and -not [Console]::IsOutputRedirected -and -not [Console]::IsInputRedirected) {
 
     # Prompt and smarter cd
-    if (Get-Command starship -ErrorAction SilentlyContinue) { Invoke-Expression (&starship init powershell) }
+    if (Get-Command starship -ErrorAction SilentlyContinue) {
+        # Catppuccin Powerline preset, kept in the Setups repo (common/starship)
+        $env:STARSHIP_CONFIG = Join-Path (Split-Path -Parent (Split-Path -Parent $PSScriptRoot)) 'common\starship\starship.toml'
+        Invoke-Expression (&starship init powershell)
+    }
     if (Get-Command zoxide   -ErrorAction SilentlyContinue) {
         Invoke-Expression (& { (zoxide init powershell | Out-String) })
         # fish: alias cd="z"
