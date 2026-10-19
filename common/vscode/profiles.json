@@ -20,13 +20,19 @@
     "ms-vscode.remote-explorer"
   ],
   "profiles": {
-    "Data Science": {
-      "icon": "graph",
+    "Python": {
+      "icon": "code",
       "extensions": [
         "ms-python.python",
         "ms-python.vscode-pylance",
         "ms-python.debugpy",
-        "ms-python.vscode-python-envs",
+        "ms-python.vscode-python-envs"
+      ]
+    },
+    "Data Science": {
+      "icon": "graph",
+      "extends": "Python",
+      "extensions": [
         "ms-toolsai.jupyter",
         "ms-toolsai.jupyter-renderers",
         "ms-toolsai.datawrangler",

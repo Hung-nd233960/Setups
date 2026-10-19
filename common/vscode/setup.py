@@ -1,7 +1,7 @@
 """Install the shared VS Code settings and the per-use-case profiles.
 
 profiles.json lists the extensions every profile gets ("base") and the extra ones of
-each named profile. The named profiles share the Default profile's settings,
+each named profile; "extends" adds another profile's list. The named profiles share the Default profile's settings,
 keybindings, snippets and tasks, so settings.jsonc here is the only settings file.
 It is copied, not linked: VS Code writes machine-specific values (SSH hosts, DB
 connections) into settings.json, and this repo is public.
@@ -113,6 +113,13 @@ class Code:
                         deps.add(dep.lower())
                         todo.append(dep.lower())
         return deps
+
+
+def profile_extensions(named, name):
+    """A profile's own extensions plus those of the profile it extends, if any."""
+    p = named[name]
+    parent = profile_extensions(named, p["extends"]) if "extends" in p else []
+    return parent + [e.lower() for e in p["extensions"] if e.lower() not in parent]
 
 
 def sync_settings(user, check, stamp):
@@ -256,12 +263,12 @@ def main():
         user, list(named), icons, args.check, args.sandbox, stamp
     )
     ok &= sync_extensions(code, None, base, args.prune, args.check)
-    for name, p in named.items():
+    for name in named:
         if name in present:
             ok &= sync_extensions(
                 code,
                 name,
-                base + [e.lower() for e in p["extensions"]],
+                base + profile_extensions(named, name),
                 args.prune,
                 args.check,
             )

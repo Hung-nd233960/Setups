@@ -41,7 +41,8 @@ git clone https://github.com/Hung-nd233960/Setups.git ~/Setups
 | Profile | Extra extensions | For |
 |---|---|---|
 | Default | none | Dotfiles: JSON, TOML, YAML, Markdown |
-| Data Science | Python, Pylance, Jupyter, Data Wrangler, Quarto, Rainbow CSV, SQLite viewer | Notebooks and analysis |
+| Python | Python, Pylance, debugger, Python Environments | Packages, CLIs, scripts |
+| Data Science | everything in Python, plus Jupyter, Data Wrangler, Quarto, Rainbow CSV, SQLite viewer | Notebooks and analysis |
 | Web | Live Preview | HTML/CSS/JS |
 | Docs | LaTeX Workshop (latexmk), Tinymist (Typst), Quarto | Reports and papers |
 
