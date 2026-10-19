@@ -23,7 +23,12 @@ git clone https://github.com/Hung-nd233960/Setups.git $HOME\Setups
 
 ## Linux
 
-Link or copy each folder under `linux/` and `common/` into `~/.config/`, for example `ln -s ~/Setups/common/nvim ~/.config/nvim`.
+```bash
+git clone https://github.com/Hung-nd233960/Setups.git ~/Setups
+~/Setups/linux/link.sh
+```
+
+`link.sh` symlinks `common/` (nvim, yazi, helix, starship) and `linux/` (fish, kitty, btop, zellij) into `~/.config/`, and the lint configs into `~`. Existing files are renamed to `*.bak-<timestamp>`, never deleted. The Claude Code format hook (`common/lint/format_hook.py`) is registered in `~/.claude/settings.json` per machine; on Linux point its path at `~/Setups/common/lint/format_hook.py`.
 
 ## Notes
 
