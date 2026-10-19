@@ -32,7 +32,7 @@ foreach ($p in "$HOME\Documents\PowerShell\Microsoft.PowerShell_profile.ps1",
 }
 # Lint/format defaults: copied (file symlinks need admin on Windows). Re-run after editing common\lint.
 foreach ($name in '.editorconfig', 'ruff.toml', 'biome.json', '.prettierrc.json', '.yamllint.yaml',
-                  '.taplo.toml', '.markdownlint-cli2.jsonc') {
+                  '.taplo.toml', '.markdownlint-cli2.jsonc', 'typos.toml') {
     $src = "$repo\common\lint\$name"; $dst = "$HOME\$name"
     if ((Test-Path $dst) -and ([IO.File]::ReadAllText($src) -eq [IO.File]::ReadAllText($dst))) { "ok       $dst"; continue }
     if (Test-Path $dst) { Copy-Item $dst "$dst.bak-$stamp" }

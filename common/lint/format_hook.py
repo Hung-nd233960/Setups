@@ -54,6 +54,9 @@ PRETTIER = {".html", ".htm", ".yaml", ".yml"}
 YAML = {".yaml", ".yml"}
 TOML = {".toml"}
 MD = {".md", ".markdown", ".qmd"}
+SPELL = (
+    PY | BIOME | PRETTIER | TOML | MD | {".tex", ".typ", ".rs", ".txt", ".ps1", ".sh"}
+)
 
 
 def refresh_windows_path() -> None:
@@ -122,6 +125,16 @@ def handle(path: Path) -> list[str]:
         )
         if code and out:
             issues.append(out)
+        # type check only inside a uv project with a venv; standalone scripts
+        # would only produce unresolved-import noise
+        project = find_up(folder, ("pyproject.toml",))
+        if project and (project.parent / ".venv").is_dir():
+            code, out = run(
+                ["ty", "check", "--output-format", "concise", str(path)],
+                project.parent,
+            )
+            if code and out:
+                issues.append(out)
 
     elif ext in BIOME:
         own = find_up(folder, ("biome.json", "biome.jsonc"))
@@ -201,6 +214,22 @@ def handle(path: Path) -> list[str]:
                     )
                 )
             )
+
+    if ext in SPELL:
+        own = find_up(folder, ("typos.toml", "_typos.toml", ".typos.toml"))
+        code, out = run(
+            [
+                "typos",
+                "--format",
+                "brief",
+                "--config",
+                str(own or LINT_DIR / "typos.toml"),
+                str(path),
+            ],
+            folder,
+        )
+        if code and out:
+            issues.append(out)
 
     return [i for i in issues if i.strip()]
 

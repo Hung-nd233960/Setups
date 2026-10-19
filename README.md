@@ -21,6 +21,8 @@ git clone https://github.com/Hung-nd233960/Setups.git $HOME\Setups
 
 `link.ps1` junctions `common\nvim` to `%LOCALAPPDATA%\nvim` and `common\yazi` to `%APPDATA%\yazi\config`, and points both PowerShell profiles at `windows\powershell\profile.ps1`. Tools the profile expects: starship, zoxide, eza, bat, yazi, nvim (install with `winget` / `cargo binstall`). Neovim on Windows also needs a C compiler for Treesitter (Zig works).
 
+Monthly check-up: `pwsh -File windows\maintain.ps1` reports disk space, cache sizes, available updates and drift (dead PATH entries, broken junctions, lint configs out of sync, uncommitted repos). It changes nothing unless run with `-Clean` (prune caches) or `-Update` (winget, uv tools, rustup, cargo tools, npm globals).
+
 ## Linux
 
 ```bash

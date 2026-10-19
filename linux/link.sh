@@ -42,6 +42,6 @@ git config --global core.autocrlf input
 echo "set      git core.autocrlf=input"
 
 # Lint/format defaults in the home folder (tools search parent folders)
-for name in .editorconfig ruff.toml biome.json .prettierrc.json .yamllint.yaml .taplo.toml .markdownlint-cli2.jsonc; do
+for name in .editorconfig ruff.toml biome.json .prettierrc.json .yamllint.yaml .taplo.toml .markdownlint-cli2.jsonc typos.toml; do
   link "$repo/common/lint/$name" "$HOME/$name"
 done
