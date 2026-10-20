@@ -15,6 +15,7 @@ File > Open picks it too.
     python setup.py --prune    also uninstall extensions that are not listed
     python setup.py --check    report drift only, change nothing (exit 1 on drift)
     python setup.py --diff     show how the live settings.json differs from the repo
+    python setup.py --force    overwrite settings changed locally (kept otherwise)
     python setup.py --server   on an SSH host you control: install remote.jsonc as its
                                remote settings (combine with --check / --diff)
 
@@ -156,19 +157,28 @@ def profile_extensions(named, name):
     return parent + [e.lower() for e in p["extensions"] if e.lower() not in parent]
 
 
-def sync_file(src, dst, check, stamp):
-    """Copy src over dst, backing up a different dst first."""
+def sync_file(src, dst, check, force, stamp):
+    """Copy src over dst. A dst changed since the last copy (e.g. in the VS Code UI)
+    is kept unless force, so local edits are never lost silently."""
+    last = dst.with_name(dst.name + ".setups-installed")  # what the last run copied
     if dst.exists() and dst.read_bytes() == src.read_bytes():
+        if not check and not (last.exists() and last.read_bytes() == src.read_bytes()):
+            shutil.copyfile(src, last)
         print(f"ok       {dst}")
         return True
-    if check:
-        print(f"DRIFT    {dst} differs from the repo (see --diff)")
+    edited = dst.exists() and last.exists() and dst.read_bytes() != last.read_bytes()
+    if check or (edited and not force):
+        why = "has local changes" if edited else "differs from the repo"
+        print(
+            f"DRIFT    {dst} {why}: --diff shows them; move what you want into the repo, then --force"
+        )
         return False
     if dst.exists():
         shutil.copy2(dst, dst.with_name(f"{dst.name}.bak-{stamp}"))
         print(f"backed up existing {dst}")
     dst.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(src, dst)
+    shutil.copyfile(src, last)
     print(f"copied   {dst}")
     return True
 
@@ -295,6 +305,11 @@ def main():
     parser.add_argument(
         "--sandbox", type=Path, help="use a throwaway user-data and extensions folder"
     )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="overwrite a settings file changed locally (a backup is kept)",
+    )
     args = parser.parse_args()
 
     user = user_dir(args.sandbox)
@@ -318,7 +333,7 @@ def main():
         return 0
 
     stamp = time.strftime("%Y%m%d-%H%M%S")
-    ok = sync_file(src, dst, args.check, stamp)
+    ok = sync_file(src, dst, args.check, args.force, stamp)
     if args.server:
         return 0 if ok else 1
 
