@@ -11,6 +11,7 @@ Templates live in templates/<layer>/ as *.tmpl files; {{placeholders}} are fille
 
 import argparse
 import datetime
+import json
 import os
 import re
 import shutil
@@ -81,11 +82,31 @@ def run(cmd: list[str], cwd: Path) -> None:
         raise SystemExit(f"error: '{cmd[0]}' failed (exit {result.returncode})")
 
 
+ENGINES = ["quarto", "typst", "latex"]
+
+
+def options() -> dict:
+    """The rules above as data, so front ends (setups-manager) need not copy them."""
+    return {
+        "types": TYPES,
+        "engines": ENGINES,
+        "default_engine": ENGINES[0],
+        "profiles": vscode.names(),
+        "type_profiles": vscode.TYPE_PROFILES,
+        "default_dir": str(default_root()),
+        "name_pattern": NAME_RE.pattern,
+    }
+
+
 def main(argv: list[str] | None = None) -> int:
+    if (argv if argv is not None else sys.argv[1:]) == ["--options-json"]:
+        print(json.dumps(options(), indent=2))
+        return 0
     parser = argparse.ArgumentParser(
         prog="new-project",
         description="Create a project with git, a CLAUDE.md, a README and the machine's lint setup.",
-        epilog="Types: " + "; ".join(f"{k} = {v}" for k, v in TYPES.items()),
+        epilog="Machine-readable rules: new-project --options-json. Types: "
+        + "; ".join(f"{k} = {v}" for k, v in TYPES.items()),
     )
     parser.add_argument("type", choices=TYPES, help="project type")
     parser.add_argument(
@@ -100,7 +121,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--description", default="", help="one-line description")
     parser.add_argument(
         "--engine",
-        choices=["quarto", "typst", "latex"],
+        choices=ENGINES,
         default="quarto",
         help="report engine",
     )
