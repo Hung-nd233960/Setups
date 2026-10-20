@@ -68,7 +68,7 @@ Settings are **copied**, not linked: VS Code writes machine-specific values (SSH
 | This machine's paths, envs and tools | `windows/claude-machine.md` or `linux/claude-machine.md` | yes |
 | Who I am, studies, projects, preferences | `Setups-private/claude/context.md` | **no**: separate private repo, cloned next to this one |
 
-Edit the layers, never the stub. Without Setups-private the stub skips that import; clone it later and re-run the link script. (The machine files are not called `claude.md` because Windows would load them as those folders' project instructions.)
+Edit the layers, never the stub. On my own machines, clone the private repo before running the link script: `git clone https://github.com/Hung-nd233960/Setups-private.git` next to Setups (`$HOME\Setups-private`, `~/Setups-private`). Without it the stub skips that import; clone it later and re-run the link script. (The machine files are not called `claude.md` because Windows would load them as those folders' project instructions.)
 
 ## Notes
 
