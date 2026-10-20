@@ -95,6 +95,7 @@ def options() -> dict:
         "type_profiles": vscode.TYPE_PROFILES,
         "default_dir": str(default_root()),
         "name_pattern": NAME_RE.pattern,
+        "uv_types": sorted(UV_TYPES),
     }
 
 
