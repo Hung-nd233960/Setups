@@ -23,7 +23,7 @@ git clone https://github.com/Hung-nd233960/Setups.git $HOME\Setups
 
 Project scaffolder (also installs `vsc`): `uv tool install --editable common\tools\new-project`, then `new-project <py|data|report|web> <name>` creates a project (git, README, CLAUDE.md, env) in `D:\Personal Projects\` (override with `--dir` or `NEW_PROJECT_DIR`). `link.ps1` also copies the lint configs into `D:\Personal Projects\` so projects there inherit them.
 
-Monthly check-up: `pwsh -File windows\maintain.ps1` reports disk space, cache sizes, available updates and drift (dead PATH entries, broken junctions, lint configs out of sync, uncommitted repos). It changes nothing unless run with `-Clean` (prune caches) or `-Update` (winget, uv tools, rustup, cargo tools, npm globals).
+Monthly check-up: `setups check` (the separate setups-manager project, installed with `uv tool install --editable "D:\Personal Projects\setups-manager"`) reports disk space, cache sizes, available updates and drift (dead PATH entries, broken links, lint configs out of sync, VS Code, the Claude stub, uncommitted or unpushed repos), each with its fix. It changes nothing; `--quick` skips the slow checks and `--json` is for tools and agents. `pwsh -File windows\maintain.ps1` runs the same check, and with `-Clean` (prune caches) or `-Update` (winget, uv tools, rustup, cargo tools, npm globals) does only that maintenance instead.
 
 ## Linux
 

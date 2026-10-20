@@ -238,7 +238,9 @@ def update_storage(user, named, check, sandbox, stamp):
 
     if not missing and not relinks:
         return set(named), True
-    pending = [f"profile {n}" for n in missing] + [f"{f} -> {n}" for f, n in relinks]
+    pending = [f"profile {n}" for n in missing] + [
+        f"project {f} not linked to its profile {n}" for f, n in relinks
+    ]
     if check:
         for item in pending:
             report("MISSING", item)
