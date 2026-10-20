@@ -16,6 +16,7 @@ File > Open picks it too.
     python setup.py --check    report drift only, change nothing (exit 1 on drift)
     python setup.py --diff     show how the live settings.json differs from the repo
     python setup.py --force    overwrite settings changed locally (kept otherwise)
+    python setup.py --json     results as JSON instead of lines (setups-manager reads this)
     python setup.py --server   on an SSH host you control: install remote.jsonc as its
                                remote settings (combine with --check / --diff)
 
@@ -45,6 +46,19 @@ SHARED = {
 }
 EXTENSION_ID = re.compile(r"^[\w-]+\.[\w-]+$")
 DEFAULT = "Default"
+
+
+RESULTS = None  # a list while --json collects results instead of printing them
+
+
+def report(status, subject, detail=""):
+    """One result: printed as a line, or collected for --json."""
+    if RESULTS is not None:
+        RESULTS.append(
+            {"status": status.lower(), "subject": str(subject), "detail": detail}
+        )
+    else:
+        print(f"{status:<8} {subject}" + (f": {detail}" if detail else ""))
 
 
 def user_dir(sandbox):
@@ -164,22 +178,24 @@ def sync_file(src, dst, check, force, stamp):
     if dst.exists() and dst.read_bytes() == src.read_bytes():
         if not check and not (last.exists() and last.read_bytes() == src.read_bytes()):
             shutil.copyfile(src, last)
-        print(f"ok       {dst}")
+        report("ok", dst)
         return True
     edited = dst.exists() and last.exists() and dst.read_bytes() != last.read_bytes()
     if check or (edited and not force):
         why = "has local changes" if edited else "differs from the repo"
-        print(
-            f"DRIFT    {dst} {why}: --diff shows them; move what you want into the repo, then --force"
+        report(
+            "DRIFT",
+            dst,
+            f"{why}; --diff shows them, move what you want into the repo, then --force",
         )
         return False
     if dst.exists():
         shutil.copy2(dst, dst.with_name(f"{dst.name}.bak-{stamp}"))
-        print(f"backed up existing {dst}")
+        report("backup", dst)
     dst.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(src, dst)
     shutil.copyfile(src, last)
-    print(f"copied   {dst}")
+    report("copied", dst)
     return True
 
 
@@ -191,8 +207,10 @@ def update_storage(user, named, check, sandbox, stamp):
     profiles = data.setdefault("userDataProfiles", [])
     for p in profiles:
         if p["name"] in named and not (p.get("useDefaultFlags") or {}).get("settings"):
-            print(
-                f"WARN     profile '{p['name']}' has its own settings.json; the shared settings do not apply"
+            report(
+                "WARN",
+                f"profile {p['name']}",
+                "has its own settings.json; the shared settings do not apply",
             )
     existing = {p["name"] for p in profiles}
     missing = [n for n in named if n not in existing]
@@ -214,7 +232,7 @@ def update_storage(user, named, check, sandbox, stamp):
     relinks = []
     for folder, name in marked_projects():
         if name != DEFAULT and name not in ids:
-            print(f"WARN     {folder}: unknown profile '{name}' in .vscode/profile")
+            report("WARN", folder, f"unknown profile '{name}' in .vscode/profile")
         elif links.get(folder_uri(folder)) != ids.get(name):
             relinks.append((folder, name))
 
@@ -222,24 +240,23 @@ def update_storage(user, named, check, sandbox, stamp):
         return set(named), True
     pending = [f"profile {n}" for n in missing] + [f"{f} -> {n}" for f, n in relinks]
     if check:
-        print("MISSING  " + "\n         ".join(pending))
+        for item in pending:
+            report("MISSING", item)
         return existing, False
     if not sandbox and vscode_running():
-        print(
-            "SKIP     close VS Code, then re-run for:\n         "
-            + "\n         ".join(pending)
-        )
+        for item in pending:
+            report("SKIP", item, "close VS Code, then re-run")
         return existing, False
 
     for name in missing:
         (user / "profiles" / ids[name]).mkdir(parents=True, exist_ok=True)
-        print(f"profile  {name}")
+        report("profile", name)
     for folder, name in relinks:
         if name == DEFAULT:
             links.pop(folder_uri(folder), None)
         else:
             links[folder_uri(folder)] = ids[name]
-        print(f"link     {folder} -> {name}")
+        report("link", f"{folder} -> {name}")
     if storage.exists():
         shutil.copy2(storage, storage.with_name(f"storage.json.bak-{stamp}"))
     storage.parent.mkdir(parents=True, exist_ok=True)
@@ -255,30 +272,30 @@ def sync_extensions(code, profile, wanted, prune, check):
     ok = True
     if missing:
         if check:
-            print(f"MISSING  {label}: {', '.join(missing)}")
+            report("MISSING", label, ", ".join(missing))
             ok = False
         else:
             result = code.run(
                 profile, *[arg for e in missing for arg in ("--install-extension", e)]
             )
-            print(f"install  {label}: {', '.join(missing)}")
+            report("install", label, ", ".join(missing))
             if result.returncode:
-                print(result.stdout + result.stderr)
+                report("FAILED", label, (result.stdout + result.stderr).strip())
                 ok = False
     if extra:
         if prune and not check:
             left = code.uninstall(profile, extra)
             removed = [e for e in extra if e not in left]
             if removed:
-                print(f"removed  {label}: {', '.join(removed)}")
+                report("removed", label, ", ".join(removed))
             if left:
-                print(f"FAILED   {label}: could not uninstall {', '.join(left)}")
+                report("FAILED", label, "could not uninstall " + ", ".join(left))
                 ok = False
         else:
-            print(f"EXTRA    {label}: {', '.join(extra)} (remove with --prune)")
+            report("EXTRA", label, ", ".join(extra) + " (remove with --prune)")
             ok = False
     if not missing and not extra:
-        print(f"ok       {label}: {len(wanted)} extensions")
+        report("ok", label, f"{len(wanted)} extensions")
     return ok
 
 
@@ -310,8 +327,23 @@ def main():
         action="store_true",
         help="overwrite a settings file changed locally (a backup is kept)",
     )
+    parser.add_argument(
+        "--json",
+        action="store_true",
+        help="print the results as JSON (for setups-manager)",
+    )
     args = parser.parse_args()
 
+    global RESULTS
+    if args.json:
+        RESULTS = []
+    status = run(args)
+    if args.json:
+        print(json.dumps({"ok": status == 0, "results": RESULTS}, indent=2))
+    return status
+
+
+def run(args):
     user = user_dir(args.sandbox)
     if args.server:
         src, dst = (
