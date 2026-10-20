@@ -74,10 +74,10 @@ def user_dir(sandbox):
 
 
 def projects_root():
-    """Same rule as new-project: $NEW_PROJECT_DIR, else D:\\Personal Projects, else ~/Projects."""
+    """Same rule as new-project: $NEW_PROJECT_DIR, else D:\\projects, else ~/Projects."""
     if env := os.environ.get("NEW_PROJECT_DIR"):
         return Path(env)
-    windows_default = Path(r"D:\Personal Projects")
+    windows_default = Path(r"D:\projects")
     return windows_default if windows_default.is_dir() else Path.home() / "Projects"
 
 
@@ -91,7 +91,7 @@ def marked_projects():
 
 
 def folder_uri(folder):
-    """The key VS Code uses for a folder: file:///d%3A/Personal%20Projects/x."""
+    """The key VS Code uses for a folder: file:///d%3A/projects/x."""
     path = folder.resolve().as_posix()
     if re.match(r"^[A-Za-z]:", path):
         path = "/" + path[0].lower() + path[1:]

@@ -37,7 +37,7 @@ UV_TYPES = {"py", "data"}
 def default_root() -> Path:
     if env := os.environ.get("NEW_PROJECT_DIR"):
         return Path(env)
-    windows_default = Path(r"D:\Personal Projects")
+    windows_default = Path(r"D:\projects")
     return windows_default if windows_default.is_dir() else Path.home() / "Projects"
 
 

@@ -7,4 +7,4 @@
   - What each env contains: `C:\Users\DELL\envs\README.md`. Read `C:\Users\DELL\envs\CONTEXT.md` before changing the env setup.
 - CLI tools on PATH: quarto, pandoc, typst, latexmk (TinyTeX), dot (Graphviz), ffmpeg.
 - Zotero library is auto-exported to `C:\Users\DELL\Documents\References\library.bib` (styles in `References\csl\`, Vancouver by default). See `References\README.md`.
-- `new-project` defaults to `D:\Personal Projects\<name>\` (`--engine typst|latex` for reports). Older projects in `C:\Users\DELL\Documents\Projects\` stay where they are.
+- `new-project` defaults to `D:\projects\<name>\` (`--engine typst|latex` for reports). Older projects in `C:\Users\DELL\Documents\Projects\` stay where they are.

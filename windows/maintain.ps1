@@ -16,7 +16,7 @@ $env:Path = [Environment]::GetEnvironmentVariable('Path', 'Machine') + ';' + [En
 
 if (-not ($Clean -or $Update)) {
     if (-not (Get-Command setups -ErrorAction SilentlyContinue)) {
-        "setups-manager is not installed. Clone https://github.com/Hung-nd233960/setups-manager to D:\Personal Projects\setups-manager, then: uv tool install --editable 'D:\Personal Projects\setups-manager'"
+        "setups-manager is not installed. Clone https://github.com/Hung-nd233960/setups-manager to D:\projects\setups-manager, then: uv tool install --editable 'D:\projects\setups-manager'"
         exit 1
     }
     setups check
