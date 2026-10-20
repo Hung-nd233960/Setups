@@ -33,9 +33,9 @@ foreach ($p in "$HOME\Documents\PowerShell\Microsoft.PowerShell_profile.ps1",
     "profile  $p"
 }
 # Lint/format defaults: copied (file symlinks need admin on Windows). Re-run after editing common\lint.
-# Also into the projects folder on D:, which is outside $HOME and would not inherit them.
-$lintTargets = @($HOME) + @('D:\Personal Projects' | Where-Object { Test-Path $_ })
-foreach ($target in $lintTargets) {
+# Only into $HOME: config files in the projects folder would mark the whole folder as one project.
+# The format hook falls back to common\lint itself, so projects on D: are still formatted the same.
+foreach ($target in @($HOME)) {
     foreach ($name in '.editorconfig', 'ruff.toml', 'biome.json', '.prettierrc.json', '.yamllint.yaml',
                       '.taplo.toml', '.markdownlint-cli2.jsonc', 'typos.toml') {
         $src = "$repo\common\lint\$name"; $dst = "$target\$name"
