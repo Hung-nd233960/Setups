@@ -48,6 +48,10 @@
     "Docs": {
       "icon": "book",
       "extensions": ["james-yu.latex-workshop", "myriad-dreamin.tinymist", "quarto.quarto"]
+    },
+    "Rust": {
+      "icon": "tools",
+      "extensions": ["rust-lang.rust-analyzer", "vadimcn.vscode-lldb"]
     }
   }
 }

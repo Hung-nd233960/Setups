@@ -45,6 +45,9 @@ echo "set      git core.autocrlf=input"
 if command -v code >/dev/null; then
   python3 "$repo/common/vscode/setup.py" || echo "VS Code setup reported problems (see above)"
 fi
+# Remote settings for VS Code windows that SSH into this machine. Running link.sh is what
+# marks a host as trusted: the others get only the safe defaults from settings.jsonc.
+python3 "$repo/common/vscode/setup.py" --server
 
 # Lint/format defaults in the home folder (tools search parent folders)
 for name in .editorconfig ruff.toml biome.json .prettierrc.json .yamllint.yaml .taplo.toml .markdownlint-cli2.jsonc typos.toml; do

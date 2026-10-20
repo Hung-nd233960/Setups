@@ -1,18 +1,25 @@
 """Install the shared VS Code settings and the per-use-case profiles.
 
 profiles.json lists the extensions every profile gets ("base") and the extra ones of
-each named profile; "extends" adds another profile's list. The named profiles share the Default profile's settings,
-keybindings, snippets and tasks, so settings.jsonc here is the only settings file.
-It is copied, not linked: VS Code writes machine-specific values (SSH hosts, DB
-connections) into settings.json, and this repo is public.
+each named profile; "extends" adds another profile's list. The named profiles share
+the Default profile's settings, keybindings, snippets and tasks, so settings.jsonc
+here is the only settings file. It is copied, not linked: VS Code writes
+machine-specific values (SSH hosts, DB connections) into settings.json, and this
+repo is public.
 
-    python setup.py            copy settings, create profiles, install missing extensions
+Projects name their profile in .vscode/profile (written by new-project or
+`vsc --set`). Each run links those in the projects folder to their profile, so
+File > Open picks it too.
+
+    python setup.py            copy settings, create profiles, link projects, install extensions
     python setup.py --prune    also uninstall extensions that are not listed
     python setup.py --check    report drift only, change nothing (exit 1 on drift)
     python setup.py --diff     show how the live settings.json differs from the repo
+    python setup.py --server   on an SSH host you control: install remote.jsonc as its
+                               remote settings (combine with --check / --diff)
 
-Creating a profile edits VS Code's storage.json, so close VS Code first. The other
-steps work while it is running.
+Creating profiles and linking projects edit VS Code's storage.json, so close VS Code
+first. The other steps work while it is running.
 """
 
 import argparse
@@ -25,6 +32,7 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+from urllib.parse import quote
 
 HERE = Path(__file__).resolve().parent
 SHARED = {
@@ -35,6 +43,7 @@ SHARED = {
     "mcp": True,
 }
 EXTENSION_ID = re.compile(r"^[\w-]+\.[\w-]+$")
+DEFAULT = "Default"
 
 
 def user_dir(sandbox):
@@ -47,6 +56,31 @@ def user_dir(sandbox):
         / "Code"
         / "User"
     )
+
+
+def projects_root():
+    """Same rule as new-project: $NEW_PROJECT_DIR, else D:\\Personal Projects, else ~/Projects."""
+    if env := os.environ.get("NEW_PROJECT_DIR"):
+        return Path(env)
+    windows_default = Path(r"D:\Personal Projects")
+    return windows_default if windows_default.is_dir() else Path.home() / "Projects"
+
+
+def marked_projects():
+    """(folder, profile name) for each project whose .vscode/profile names one."""
+    root = projects_root()
+    if not root.is_dir():
+        return []
+    markers = sorted(root.glob("*/.vscode/profile"))
+    return [(m.parent.parent, m.read_text(encoding="utf-8").strip()) for m in markers]
+
+
+def folder_uri(folder):
+    """The key VS Code uses for a folder: file:///d%3A/Personal%20Projects/x."""
+    path = folder.resolve().as_posix()
+    if re.match(r"^[A-Za-z]:", path):
+        path = "/" + path[0].lower() + path[1:]
+    return "file://" + quote(path, safe="/")
 
 
 def vscode_running():
@@ -122,8 +156,8 @@ def profile_extensions(named, name):
     return parent + [e.lower() for e in p["extensions"] if e.lower() not in parent]
 
 
-def sync_settings(user, check, stamp):
-    src, dst = HERE / "settings.jsonc", user / "settings.json"
+def sync_file(src, dst, check, stamp):
+    """Copy src over dst, backing up a different dst first."""
     if dst.exists() and dst.read_bytes() == src.read_bytes():
         print(f"ok       {dst}")
         return True
@@ -131,55 +165,80 @@ def sync_settings(user, check, stamp):
         print(f"DRIFT    {dst} differs from the repo (see --diff)")
         return False
     if dst.exists():
-        shutil.copy2(dst, dst.with_name(f"settings.json.bak-{stamp}"))
+        shutil.copy2(dst, dst.with_name(f"{dst.name}.bak-{stamp}"))
         print(f"backed up existing {dst}")
-    user.mkdir(parents=True, exist_ok=True)
+    dst.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(src, dst)
     print(f"copied   {dst}")
     return True
 
 
-def register_profiles(user, names, icons, check, sandbox, stamp):
-    """Add missing profiles to VS Code's storage.json; return the names that exist."""
+def update_storage(user, named, check, sandbox, stamp):
+    """Register missing profiles and link marked projects to theirs in VS Code's
+    storage.json. Returns the profile names that exist and whether all is in place."""
     storage = user / "globalStorage" / "storage.json"
     data = json.loads(storage.read_text(encoding="utf-8")) if storage.exists() else {}
     profiles = data.setdefault("userDataProfiles", [])
-    have = {p["name"] for p in profiles}
     for p in profiles:
-        if p["name"] in names and not (p.get("useDefaultFlags") or {}).get("settings"):
+        if p["name"] in named and not (p.get("useDefaultFlags") or {}).get("settings"):
             print(
                 f"WARN     profile '{p['name']}' has its own settings.json; the shared settings do not apply"
             )
-    missing = [n for n in names if n not in have]
-    if not missing:
-        return set(names)
-    if check:
-        print(f"MISSING  profiles: {', '.join(missing)}")
-        return have
-    if not sandbox and vscode_running():
-        print(f"SKIP     profiles {', '.join(missing)}: close VS Code, then re-run")
-        return have
-    if storage.exists():
-        shutil.copy2(storage, storage.with_name(f"storage.json.bak-{stamp}"))
+    existing = {p["name"] for p in profiles}
+    missing = [n for n in named if n not in existing]
     for name in missing:
         location = "setups-" + re.sub(r"\W+", "-", name.lower())
-        (user / "profiles" / location).mkdir(parents=True, exist_ok=True)
         profiles.append(
             {
                 "location": location,
                 "name": name,
-                "icon": icons[name],
+                "icon": named[name]["icon"],
                 "useDefaultFlags": SHARED,
             }
         )
+    ids = {p["name"]: p["location"] for p in profiles}
+
+    associations = data.setdefault("profileAssociations", {})
+    links = associations.setdefault("workspaces", {})
+    associations.setdefault("emptyWindows", {})
+    relinks = []
+    for folder, name in marked_projects():
+        if name != DEFAULT and name not in ids:
+            print(f"WARN     {folder}: unknown profile '{name}' in .vscode/profile")
+        elif links.get(folder_uri(folder)) != ids.get(name):
+            relinks.append((folder, name))
+
+    if not missing and not relinks:
+        return set(named), True
+    pending = [f"profile {n}" for n in missing] + [f"{f} -> {n}" for f, n in relinks]
+    if check:
+        print("MISSING  " + "\n         ".join(pending))
+        return existing, False
+    if not sandbox and vscode_running():
+        print(
+            "SKIP     close VS Code, then re-run for:\n         "
+            + "\n         ".join(pending)
+        )
+        return existing, False
+
+    for name in missing:
+        (user / "profiles" / ids[name]).mkdir(parents=True, exist_ok=True)
         print(f"profile  {name}")
+    for folder, name in relinks:
+        if name == DEFAULT:
+            links.pop(folder_uri(folder), None)
+        else:
+            links[folder_uri(folder)] = ids[name]
+        print(f"link     {folder} -> {name}")
+    if storage.exists():
+        shutil.copy2(storage, storage.with_name(f"storage.json.bak-{stamp}"))
     storage.parent.mkdir(parents=True, exist_ok=True)
     storage.write_text(json.dumps(data, indent=4), encoding="utf-8")
-    return set(names)
+    return set(named), True
 
 
 def sync_extensions(code, profile, wanted, prune, check):
-    label = profile or "Default"
+    label = profile or DEFAULT
     have = code.installed(profile)
     missing = [e for e in wanted if e not in have]
     extra = sorted(have - set(wanted) - code.dependencies(wanted))
@@ -226,7 +285,12 @@ def main():
     parser.add_argument(
         "--diff",
         action="store_true",
-        help="diff the live settings.json against the repo",
+        help="diff the live settings file against the repo",
+    )
+    parser.add_argument(
+        "--server",
+        action="store_true",
+        help="install the remote settings on this SSH host",
     )
     parser.add_argument(
         "--sandbox", type=Path, help="use a throwaway user-data and extensions folder"
@@ -234,34 +298,36 @@ def main():
     args = parser.parse_args()
 
     user = user_dir(args.sandbox)
-    if args.diff:
-        live = user / "settings.json"
-        repo = (
-            (HERE / "settings.jsonc")
-            .read_text(encoding="utf-8")
-            .splitlines(keepends=True)
+    if args.server:
+        src, dst = (
+            HERE / "remote.jsonc",
+            Path.home() / ".vscode-server" / "data" / "Machine" / "settings.json",
         )
-        mine = (
-            live.read_text(encoding="utf-8").splitlines(keepends=True)
-            if live.exists()
+    else:
+        src, dst = HERE / "settings.jsonc", user / "settings.json"
+    if args.diff:
+        repo = src.read_text(encoding="utf-8").splitlines(keepends=True)
+        live = (
+            dst.read_text(encoding="utf-8").splitlines(keepends=True)
+            if dst.exists()
             else []
         )
         sys.stdout.writelines(
-            difflib.unified_diff(repo, mine, "repo settings.jsonc", str(live))
+            difflib.unified_diff(repo, live, f"repo {src.name}", str(dst))
         )
         return 0
+
+    stamp = time.strftime("%Y%m%d-%H%M%S")
+    ok = sync_file(src, dst, args.check, stamp)
+    if args.server:
+        return 0 if ok else 1
 
     config = json.loads((HERE / "profiles.json").read_text(encoding="utf-8"))
     base = [e.lower() for e in config["base"]]
     named = config["profiles"]
-    stamp = time.strftime("%Y%m%d-%H%M%S")
     code = Code(args.sandbox)
-
-    ok = sync_settings(user, args.check, stamp)
-    icons = {name: p["icon"] for name, p in named.items()}
-    present = register_profiles(
-        user, list(named), icons, args.check, args.sandbox, stamp
-    )
+    present, linked = update_storage(user, named, args.check, args.sandbox, stamp)
+    ok &= linked
     ok &= sync_extensions(code, None, base, args.prune, args.check)
     for name in named:
         if name in present:

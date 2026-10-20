@@ -21,7 +21,7 @@ git clone https://github.com/Hung-nd233960/Setups.git $HOME\Setups
 
 `link.ps1` junctions `common\nvim` to `%LOCALAPPDATA%\nvim` and `common\yazi` to `%APPDATA%\yazi\config`, and points both PowerShell profiles at `windows\powershell\profile.ps1`. Tools the profile expects: starship, zoxide, eza, bat, yazi, nvim (install with `winget` / `cargo binstall`). Neovim on Windows also needs a C compiler for Treesitter (Zig works).
 
-Project scaffolder: `uv tool install --editable common\tools\new-project`, then `new-project <py|data|report|web> <name>` creates a project (git, README, CLAUDE.md, env) in `D:\Personal Projects\` (override with `--dir` or `NEW_PROJECT_DIR`). `link.ps1` also copies the lint configs into `D:\Personal Projects\` so projects there inherit them.
+Project scaffolder (also installs `vsc`): `uv tool install --editable common\tools\new-project`, then `new-project <py|data|report|web> <name>` creates a project (git, README, CLAUDE.md, env) in `D:\Personal Projects\` (override with `--dir` or `NEW_PROJECT_DIR`). `link.ps1` also copies the lint configs into `D:\Personal Projects\` so projects there inherit them.
 
 Monthly check-up: `pwsh -File windows\maintain.ps1` reports disk space, cache sizes, available updates and drift (dead PATH entries, broken junctions, lint configs out of sync, uncommitted repos). It changes nothing unless run with `-Clean` (prune caches) or `-Update` (winget, uv tools, rustup, cargo tools, npm globals).
 
@@ -36,7 +36,7 @@ git clone https://github.com/Hung-nd233960/Setups.git ~/Setups
 
 ## VS Code
 
-`common/vscode/setup.py` (run by both link scripts) sets up one shared `settings.jsonc` and four profiles. Each profile gets the base extensions (theme, Claude Code, Remote SSH, git, and the same formatters as the Claude format hook: Ruff, Biome, Prettier, taplo, markdownlint, typos) plus its own:
+`common/vscode/setup.py` (run by both link scripts) sets up one shared `settings.jsonc` and the profiles below. Each profile gets the base extensions (theme, Claude Code, Remote SSH, git, and the same formatters as the Claude format hook: Ruff, Biome, Prettier, taplo, markdownlint, typos) plus its own:
 
 | Profile | Extra extensions | For |
 |---|---|---|
@@ -45,10 +45,18 @@ git clone https://github.com/Hung-nd233960/Setups.git ~/Setups
 | Data Science | everything in Python, plus Jupyter, Data Wrangler, Quarto, Rainbow CSV, SQLite viewer | Notebooks and analysis |
 | Web | Live Preview | HTML/CSS/JS |
 | Docs | LaTeX Workshop (latexmk), Tinymist (Typst), Quarto | Reports and papers |
+| Rust | rust-analyzer, CodeLLDB | Rust crates |
 
-All profiles share the Default profile's settings, keybindings and snippets, so there is one settings file. Extensions are listed in `profiles.json`. Open a folder in a profile with `code --profile "Data Science" <folder>`; VS Code remembers the choice for that folder.
+All profiles share the Default profile's settings, keybindings and snippets, so there is one settings file. Extensions are listed in `profiles.json`.
 
-Settings are **copied**, not linked: VS Code writes machine-specific values (SSH hosts, database connections) into `settings.json`, and this repo is public. To keep a change made in the UI, run `setup.py --diff` and copy the part you want into `settings.jsonc`. `setup.py --check` reports drift, `--prune` uninstalls extensions that are not listed, and `--sandbox <dir>` tries everything in a throwaway VS Code folder. Creating profiles needs VS Code closed. Settings Sync stays off; this repo replaces it.
+**Which profile a project uses** is recorded in the project as `.vscode/profile` (committed, with a matching `.vscode/extensions.json`). `new-project` writes it (default by type: py = Python, data = Data Science, report = Docs, web = Web; override with `--profile`, open with `--open`). For other folders: `vsc --set <profile> [dir]`; `vsc [dir]` opens a folder in its profile and `vsc --list` lists them. Each `setup.py` run with VS Code closed also links every marked project in the projects folder to its profile, so File > Open picks it too.
+
+**SSH.** Extensions in a Remote-SSH window run on the server, and VS Code keeps them per profile there. Two levels:
+
+- *Safe* (any host, nothing to do): `remote.SSH.defaultExtensions` installs only Ruff, Python, Pylance and Jupyter, which bundle their own tools. No Claude Code, so no credentials are left on machines you don't control, and no settings are written on the host.
+- *Full* (hosts you control): run `linux/link.sh` there. It installs `remote.jsonc` as the host's remote settings (`setup.py --server`): file-watcher exclusions for datasets and training output, a TensorBoard port label, and a list from which each connecting profile copies its own extensions (Data Science brings Jupyter and Data Wrangler, Docs brings LaTeX Workshop and Tinymist, every profile brings Claude Code and the formatters).
+
+Settings are **copied**, not linked: VS Code writes machine-specific values (SSH hosts, database connections) into `settings.json`, and this repo is public. To keep a change made in the UI, run `setup.py --diff` and copy the part you want into `settings.jsonc`. `setup.py --check` reports drift, `--prune` uninstalls extensions that are not listed, and `--sandbox <dir>` tries everything in a throwaway VS Code folder. Creating profiles and linking projects need VS Code closed (otherwise they are skipped with a note). Settings Sync stays off; this repo replaces it.
 
 ## Notes
 

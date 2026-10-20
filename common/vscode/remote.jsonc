@@ -1,0 +1,47 @@
+{
+  // Remote settings for SSH hosts I control and trust. linux/link.sh installs this on the
+  // host as ~/.vscode-server/data/Machine/settings.json (setup.py --server). Hosts without
+  // it get only the safe minimum: remote.SSH.defaultExtensions in settings.jsonc.
+
+  // When a window connects, VS Code copies to this host the extensions on this list that
+  // the window's profile has locally: Data Science brings Jupyter and Data Wrangler, Docs
+  // brings LaTeX Workshop and Tinymist, every profile brings Claude Code and the formatters.
+  "remote.defaultExtensionsIfInstalledLocally": [
+    "anthropic.claude-code",
+    "editorconfig.editorconfig",
+    "tekumara.typos-vscode",
+    "charliermarsh.ruff",
+    "biomejs.biome",
+    "esbenp.prettier-vscode",
+    "redhat.vscode-yaml",
+    "tamasfe.even-better-toml",
+    "davidanson.vscode-markdownlint",
+    "yzhang.markdown-all-in-one",
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "ms-python.debugpy",
+    "ms-python.vscode-python-envs",
+    "ms-toolsai.jupyter",
+    "ms-toolsai.jupyter-renderers",
+    "ms-toolsai.datawrangler",
+    "quarto.quarto",
+    "mechatroner.rainbow-csv",
+    "qwtel.sqlite-viewer",
+    "james-yu.latex-workshop",
+    "myriad-dreamin.tinymist"
+  ],
+
+  // Datasets and training output: keep the file watcher off them (files stay visible)
+  "files.watcherExclude": {
+    "**/.venv/**": true,
+    "**/data/**": true,
+    "**/checkpoints/**": true,
+    "**/runs/**": true,
+    "**/wandb/**": true,
+    "**/mlruns/**": true,
+    "**/lightning_logs/**": true
+  },
+  "remote.portsAttributes": {
+    "6006": { "label": "TensorBoard", "onAutoForward": "notify" }
+  }
+}

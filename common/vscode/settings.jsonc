@@ -55,6 +55,8 @@
     "editor.formatOnSave": false,
     "editor.wordWrap": "on"
   },
+  "[rust]": { "editor.defaultFormatter": "rust-lang.rust-analyzer" },
+  "rust-analyzer.check.command": "clippy",
   "redhat.telemetry.enabled": false,
 
   // Python and notebooks
@@ -101,9 +103,9 @@
     "scminput": false
   },
 
-  // Remote SSH: what to install on a workstation when connecting the first time
+  // Remote SSH, safe minimum for any host: extensions with bundled tools, no Claude Code
+  // (no credentials left on machines I don't control). Hosts I control get remote.jsonc.
   "remote.SSH.defaultExtensions": [
-    "anthropic.claude-code",
     "charliermarsh.ruff",
     "ms-python.python",
     "ms-python.vscode-pylance",
