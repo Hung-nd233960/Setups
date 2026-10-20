@@ -9,3 +9,4 @@ Data analysis project, uv-managed (Python 3.13). Pipeline: `data/raw/` -> `scrip
 - Render the report: `uv run quarto render reports/report.qmd` (uv puts the project venv first so Quarto runs code with it).
 - Citations: cite only keys that exist in the bibliography file named in the report's front matter; never invent references.
 - Formatting, lint, spelling and type checks run automatically after each edit; fix what they report.
+- VS Code profile: {{profile}}, in `.vscode/profile`. If the work changes (e.g. notebooks arrive), switch with `vsc --set <profile>` (`vsc --list` shows them); never open VS Code windows unless asked.

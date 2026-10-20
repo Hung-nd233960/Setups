@@ -18,7 +18,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from new_project import __version__
+from new_project import __version__, vscode
 
 TEMPLATES = Path(__file__).parent / "templates"
 REFERENCES = Path.home() / "Documents" / "References"
@@ -105,6 +105,16 @@ def main(argv: list[str] | None = None) -> int:
         help="report engine",
     )
     parser.add_argument(
+        "--profile",
+        choices=vscode.names() or None,
+        help="VS Code profile (default by type: "
+        + ", ".join(f"{k} = {v}" for k, v in vscode.TYPE_PROFILES.items())
+        + ")",
+    )
+    parser.add_argument(
+        "--open", action="store_true", help="open the project in VS Code afterwards"
+    )
+    parser.add_argument(
         "--no-git", action="store_true", help="skip git init and first commit"
     )
     parser.add_argument(
@@ -123,6 +133,7 @@ def main(argv: list[str] | None = None) -> int:
     if target.exists() and any(target.iterdir()):
         parser.error(f"{target} already exists and is not empty")
 
+    profile = args.profile or vscode.TYPE_PROFILES[args.type]
     today = datetime.date.today()
     library = REFERENCES / "library.bib"
     ctx = {
@@ -138,6 +149,7 @@ def main(argv: list[str] | None = None) -> int:
         # files outside the project, so it always uses a local references.bib
         "bibliography": library.as_posix() if library.is_file() else "references.bib",
         "csl": (REFERENCES / "csl" / "vancouver.csl").as_posix(),
+        "profile": profile,
     }
 
     print(f"Creating {args.type} project at {target}")
@@ -159,6 +171,12 @@ def main(argv: list[str] | None = None) -> int:
         print(
             "  note: no Zotero export at ~/Documents/References/library.bib yet; using local references.bib"
         )
+
+    if vscode.names():
+        vscode.write_marker(target, profile)
+        print(f"  VS Code profile: {profile} (.vscode/profile)")
+    else:
+        print("  note: Setups profiles.json not found; no VS Code profile set")
 
     if args.type in UV_TYPES and not args.no_sync:
         if shutil.which("uv") is None:
@@ -183,6 +201,8 @@ def main(argv: list[str] | None = None) -> int:
     print(
         f'\nDone. Next: cd "{target}"  then read README.md (and CLAUDE.md for agents).'
     )
+    if args.open:
+        return vscode.open_folder(target, profile)
     return 0
 
 

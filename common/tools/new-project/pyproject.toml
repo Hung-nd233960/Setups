@@ -7,6 +7,7 @@ dependencies = []
 
 [project.scripts]
 new-project = "new_project.cli:main"
+vsc = "new_project.vscode:main"
 
 [build-system]
 requires = ["uv_build>=0.11,<0.12"]

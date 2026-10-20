@@ -7,3 +7,4 @@ Quarto report: `report.qmd` renders to PDF (TinyTeX) and Word.
 - Figures: put files in `figures/`, include as `![Caption](figures/x.png){#fig-x}`, reference as `@fig-x`.
 - Citations: cite only keys that exist in the bibliography named in the front matter; if a source is missing, ask the user to add it in Zotero. Never invent references.
 - No Python here by default. If the report needs computed results, ask whether to convert it to a `new-project data` project.
+- VS Code profile: {{profile}}, in `.vscode/profile`. If the work changes (e.g. notebooks arrive), switch with `vsc --set <profile>` (`vsc --list` shows them); never open VS Code windows unless asked.
